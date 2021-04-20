@@ -28,4 +28,4 @@ with joblib.parallel_backend('threading', n_jobs=-1):
     cv.fit(train_features, train_labels.values.ravel())
     print_res(cv)
 
-joblib.dump(cv.best_params_, 'Models/SVM_Model.pkl')
+joblib.dump(cv.best_estimator_, 'Models/SVM_Model.pkl')

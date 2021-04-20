@@ -1,7 +1,8 @@
+from inspect import Parameter
 import joblib
-import pandas as pd
-from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.model_selection import GridSearchCV
+import pandas as pd
 
 train_features = pd.read_csv('train_features.csv')
 train_labels = pd.read_csv('train_labels.csv')
@@ -19,15 +20,14 @@ def print_res(cv_output):
               round(std, 3), params))
 
 
-mlp = MLPClassifier(max_iter=10000)
+gb = GradientBoostingClassifier()
 parameters = {
-    'activation': ['identity', 'logistic', 'tanh', 'relu'],
-    'learning_rate': ['constant', 'invscaling', 'adaptive'],
-    'hidden_layer_sizes': [(10,), (50,), (100,)]
+    'n_estimators': [5, 50, 250, 500],
+    'max_depth': [1, 3, 4, 5, 7, 9],
+    'learning_rate': [.01, .1, 1, 10, 100]
 }
-cv = GridSearchCV(mlp, parameters, cv=5)
+cv = GridSearchCV(gb, parameters, cv=5)
 with joblib.parallel_backend('threading', n_jobs=-1):
     cv.fit(train_features, train_labels.values.ravel())
     print_res(cv)
-
-joblib.dump(cv.best_estimator_, 'Models/MLP_Model.pkl')
+joblib.dump(cv.best_estimator_, 'Models\GB_Model.pkl')

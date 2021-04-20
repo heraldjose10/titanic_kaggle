@@ -1,7 +1,7 @@
 import joblib
 import pandas as pd
-from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
 
 train_features = pd.read_csv('train_features.csv')
 train_labels = pd.read_csv('train_labels.csv')
@@ -18,16 +18,14 @@ def print_res(cv_output):
         print('mean score : {} std : +/- {} for {}'.format(round(means, 3),
               round(std, 3), params))
 
-
-mlp = MLPClassifier(max_iter=10000)
+rf = RandomForestClassifier()
 parameters = {
-    'activation': ['identity', 'logistic', 'tanh', 'relu'],
-    'learning_rate': ['constant', 'invscaling', 'adaptive'],
-    'hidden_layer_sizes': [(10,), (50,), (100,)]
+    'max_depth' : [2, 4, 8, 16, 32, None],
+    'n_estimators' : [5, 50, 250]
 }
-cv = GridSearchCV(mlp, parameters, cv=5)
+cv = GridSearchCV(rf, parameters, cv=5)
 with joblib.parallel_backend('threading', n_jobs=-1):
     cv.fit(train_features, train_labels.values.ravel())
     print_res(cv)
 
-joblib.dump(cv.best_estimator_, 'Models/MLP_Model.pkl')
+joblib.dump(cv.best_estimator_, 'Models/RF_Model.pkl')
